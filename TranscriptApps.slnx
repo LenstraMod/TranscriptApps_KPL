@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="D:/Visual Studio/Repos/TranscriptApps/Backend/Backend.csproj" Id="cc1f19e9-faa3-431c-b9cc-6b09cdc63eb4" />
+  <Project Path="D:/Visual Studio/Repos/TranscriptApps/Frontend/Frontend.csproj" />
+  <Project Path="JsonHelperLibrary/JsonHelperLibrary.csproj" Id="f1f2d71c-9495-4232-9b88-3569caafe8b0" />
+</Solution>

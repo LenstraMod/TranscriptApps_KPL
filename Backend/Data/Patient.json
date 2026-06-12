@@ -1,0 +1,62 @@
+[
+  {
+    "BirthDate": "0001-01-01T00:00:00",
+    "phoneNumber": "081234567890",
+    "Gender": null,
+    "Id": 0,
+    "Name": null,
+    "email": "rian.hidayat@gmail.com",
+    "password": "patient_pass_1",
+    "role": "Patient"
+  },
+  {
+    "BirthDate": "0001-01-01T00:00:00",
+    "phoneNumber": "082198765432",
+    "Gender": null,
+    "Id": 0,
+    "Name": null,
+    "email": "alya.putri@yahoo.com",
+    "password": "patient_pass_2",
+    "role": "Patient"
+  },
+  {
+    "BirthDate": "0001-01-01T00:00:00",
+    "phoneNumber": "085711223344",
+    "Gender": null,
+    "Id": 0,
+    "Name": null,
+    "email": "dewi.lestari@outlook.com",
+    "password": "patient_pass_3",
+    "role": "Patient"
+  },
+  {
+    "BirthDate": "0001-01-01T00:00:00",
+    "phoneNumber": "081900998877",
+    "Gender": null,
+    "Id": 0,
+    "Name": null,
+    "email": "fajar.nugraha@gmail.com",
+    "password": "patient_pass_4",
+    "role": "Patient"
+  },
+  {
+    "BirthDate": "0001-01-01T00:00:00",
+    "phoneNumber": "081288776655",
+    "Gender": null,
+    "Id": 0,
+    "Name": null,
+    "email": "eka.wijaya@gmail.com",
+    "password": "patient_pass_5",
+    "role": "Patient"
+  },
+  {
+    "BirthDate": "2026-06-12T05:34:31.327Z",
+    "phoneNumber": "08123123",
+    "Gender": "male",
+    "Id": 1,
+    "Name": "Abe",
+    "email": "abe@gmail.com",
+    "password": "abe12345",
+    "role": "Patient"
+  }
+]
