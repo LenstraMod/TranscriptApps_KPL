@@ -1,0 +1,230 @@
+{
+  "schedules": [
+    {
+      "scheduleId": "SCH-001",
+      "psychologist": {
+        "psychologistId": 1,
+        "name": "Dr. Budi Santoso, M.Psi.",
+        "email": "budi.santoso@psikolog.com",
+        "strNumber": "STR-12345-2026",
+        "experience": 8
+      },
+      "session": {
+        "date": "2026-06-15",
+        "day": "Monday",
+        "startTime": "09:00",
+        "endTime": "12:00",
+        "method": "online",
+        "meetingLink": "https://meet.example.com/budi-001",
+        "location": null
+      },
+      "status": "tersedia",
+      "bookedBy": null
+    },
+    {
+      "scheduleId": "SCH-002",
+      "psychologist": {
+        "psychologistId": 1,
+        "name": "Dr. Budi Santoso, M.Psi.",
+        "email": "budi.santoso@psikolog.com",
+        "strNumber": "STR-12345-2026",
+        "experience": 8
+      },
+      "session": {
+        "date": "2026-06-18",
+        "day": "Wednesday",
+        "startTime": "13:00",
+        "endTime": "16:00",
+        "method": "offline",
+        "meetingLink": null,
+        "location": "Klinik Psikologi Bandung, Jl. Merdeka No. 10, Bandung"
+      },
+      "status": "terbooking",
+      "bookedBy": {
+        "patientId": 1,
+        "name": "Abe",
+        "contact": {
+          "phone": "08123123",
+          "email": "abe@gmail.com"
+        },
+        "complaint": "Mengalami kecemasan berlebih dan sulit tidur sejak 2 minggu terakhir.",
+        "sessionHistory": []
+      }
+    },
+    {
+      "scheduleId": "SCH-003",
+      "psychologist": {
+        "psychologistId": 1,
+        "name": "Dr. Budi Santoso, M.Psi.",
+        "email": "budi.santoso@psikolog.com",
+        "strNumber": "STR-12345-2026",
+        "experience": 8
+      },
+      "session": {
+        "date": "2026-06-19",
+        "day": "Friday",
+        "startTime": "09:00",
+        "endTime": "12:00",
+        "method": "online",
+        "meetingLink": "https://meet.example.com/budi-003",
+        "location": null
+      },
+      "status": "selesai",
+      "bookedBy": {
+        "patientId": 0,
+        "name": null,
+        "contact": {
+          "phone": "081234567890",
+          "email": "rian.hidayat@gmail.com"
+        },
+        "complaint": "Stres karena tekanan bekerja dan kesulitan mengatur emosi.",
+        "sessionHistory": []
+      }
+    },
+    {
+      "scheduleId": "SCH-004",
+      "psychologist": {
+        "psychologistId": 2,
+        "name": "Siti Rahma, S.Psi., M.Psi.",
+        "email": "siti.rahma@psikolog.com",
+        "strNumber": "STR-67890-2025",
+        "experience": 5
+      },
+      "session": {
+        "date": "2026-06-16",
+        "day": "Tuesday",
+        "startTime": "10:00",
+        "endTime": "14:00",
+        "method": "online",
+        "meetingLink": "https://meet.example.com/siti-004",
+        "location": null
+      },
+      "status": "tersedia",
+      "bookedBy": null
+    },
+    {
+      "scheduleId": "SCH-005",
+      "psychologist": {
+        "psychologistId": 2,
+        "name": "Siti Rahma, S.Psi., M.Psi.",
+        "email": "siti.rahma@psikolog.com",
+        "strNumber": "STR-67890-2025",
+        "experience": 5
+      },
+      "session": {
+        "date": "2026-06-18",
+        "day": "Thursday",
+        "startTime": "14:00",
+        "endTime": "17:00",
+        "method": "offline",
+        "meetingLink": null,
+        "location": "Klinik Kesehatan Mental, Jl. Sudirman No. 5, Jakarta"
+      },
+      "status": "terbooking",
+      "bookedBy": {
+        "patientId": 0,
+        "name": null,
+        "contact": {
+          "phone": "082198765432",
+          "email": "alya.putri@yahoo.com"
+        },
+        "complaint": "Merasa cemas dan tidak percaya diri dalam lingkungan sosial.",
+        "sessionHistory": [
+          {
+            "scheduleId": "SCH-000",
+            "date": "2026-06-05",
+            "method": "online",
+            "status": "selesai",
+            "notes": "Pasien mulai terbuka, disarankan melanjutkan terapi kognitif."
+          }
+        ]
+      }
+    },
+    {
+      "scheduleId": "SCH-006",
+      "psychologist": {
+        "psychologistId": 3,
+        "name": "Andi Wijaya, M.Psi., Psikolog",
+        "email": "andi.wijaya@psikolog.com",
+        "strNumber": "STR-11223-2024",
+        "experience": 12
+      },
+      "session": {
+        "date": "2026-06-15",
+        "day": "Monday",
+        "startTime": "15:00",
+        "endTime": "18:00",
+        "method": "online",
+        "meetingLink": "https://meet.example.com/andi-006",
+        "location": null
+      },
+      "status": "terbooking",
+      "bookedBy": {
+        "patientId": 0,
+        "name": null,
+        "contact": {
+          "phone": "085711223344",
+          "email": "dewi.lestari@outlook.com"
+        },
+        "complaint": "Mengalami burnout dan kehilangan motivasi dalam pekerjaan.",
+        "sessionHistory": []
+      }
+    },
+    {
+      "scheduleId": "SCH-007",
+      "psychologist": {
+        "psychologistId": 3,
+        "name": "Andi Wijaya, M.Psi., Psikolog",
+        "email": "andi.wijaya@psikolog.com",
+        "strNumber": "STR-11223-2024",
+        "experience": 12
+      },
+      "session": {
+        "date": "2026-06-20",
+        "day": "Saturday",
+        "startTime": "09:00",
+        "endTime": "13:00",
+        "method": "offline",
+        "meetingLink": null,
+        "location": "Klinik Harmoni, Jl. Gatot Subroto No. 22, Jakarta"
+      },
+      "status": "tersedia",
+      "bookedBy": null
+    }
+  ],
+  "roles": {
+    "pasien": {
+      "roleId": "ROLE-001",
+      "roleName": "Patient",
+      "permissions": [
+        "view_available_schedules",
+        "book_schedule",
+        "cancel_booking",
+        "view_own_session_history",
+        "update_own_profile"
+      ]
+    },
+    "psikolog": {
+      "roleId": "ROLE-002",
+      "roleName": "Psikolog",
+      "permissions": [
+        "create_schedule",
+        "update_schedule",
+        "delete_schedule",
+        "view_booked_patients",
+        "update_session_status",
+        "add_session_notes"
+      ]
+    },
+    "admin": {
+      "roleId": "ROLE-003",
+      "roleName": "Admin",
+      "permissions": [
+        "manage_all_schedules",
+        "manage_users",
+        "view_all_sessions",
+        "generate_reports"
+      ]
+    }
+  }
+}
