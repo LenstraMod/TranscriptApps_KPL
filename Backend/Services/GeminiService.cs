@@ -43,10 +43,16 @@ namespace Backend.Services
             string json = GeminiResponse.BuildAudioRequest(base64audio, prompt);
 
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            string url = $"{BaseUrl}/{Model}:generationContent?key={_apiKey}";
+            string url = $"{BaseUrl}/{Model}:generateContent?key={_apiKey}";
 
             var response = await _httpClient.PostAsync(url, content);
             string responseJson = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Gemini API error {(int)response.StatusCode}: {responseJson}");
+            }
+
 
             return GeminiResponse.ParseTranscript(responseJson);
         }

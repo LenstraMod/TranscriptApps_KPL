@@ -45,18 +45,18 @@ namespace Backend.Controllers
             if (string.IsNullOrEmpty(roles)) return BadRequest(new { Message = "Role tidak boleh kosong" });
             if (roles != "Psikolog" && roles != "Patient") return BadRequest(new { Message = "Role tidak Valid!" });
 
-            var transcript = _service.GetTranscript(appointmentIds, roles);
+            var transcripts = _service.GetTranscript(appointmentIds, roles);
 
-            if (transcript == null) return NotFound(new { Message = "Transcript tidak ditemukan!"});
+            if (transcripts == null) return NotFound(new { Message = "Transcript tidak ditemukan!"});
 
             return Ok(new { 
                 appointmentId = appointmentIds,
                 role = roles,
-                transcript = transcript
+                transcript = transcripts
             });
         }
 
-        [HttpGet("{all}")]
+        [HttpGet]
         public IActionResult GetAll()
         {
             var transcripts = _service.GetAll();
