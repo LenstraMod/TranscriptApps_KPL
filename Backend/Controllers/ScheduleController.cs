@@ -63,7 +63,7 @@ namespace Backend.Controllers
         [HttpPut("status/{id}")]
         public IActionResult UpdateStatus(string id, [FromBody] UpdateStatusRequest req)
         {
-            bool success = _scheduleService.UpdateStatus(id, req.Status);
+            bool success = _scheduleService.ApplyEvent(id, req.Event);
             if (!success) return NotFound(new { message = "Jadwal tidak ditemukan" });
             return Ok(new { message = "Status berhasil diupdate" });
         }
@@ -79,6 +79,6 @@ namespace Backend.Controllers
 
     public class UpdateStatusRequest
     {
-        public string Status { get; set; }
+        public string Event { get; set; }
     }
 }

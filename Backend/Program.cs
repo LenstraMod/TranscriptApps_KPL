@@ -25,7 +25,7 @@ namespace Backend
             });
 
             builder.Services.AddSingleton<AuthService>();
-            builder.Services.AddScoped<ScheduleService>();
+            builder.Services.AddSingleton<ScheduleService>();
 
             builder.Services.AddSingleton<GeminiService>();
             builder.Services.AddSingleton<TranscriptService>();

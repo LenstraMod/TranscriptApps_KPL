@@ -27,30 +27,30 @@ namespace Backend.Controllers
             byte[] audioBytes = memoryStream.ToArray();
 
             var transcript = await _service.GenerateTranscript(
-                req.AppointmentId,
+                req.scheduleId,
                 audioBytes
              );
 
             return Ok(new
             {
                 message = "Transcript berhasil dibuat!",
-                appointmentId = transcript.appointmentId,
+                appointmentId = transcript.scheduleId,
                 generatedAt = transcript.createdAt
             });
         }
 
         [HttpGet("{appointmentId}")]
-        public IActionResult GetTranscript(int appointmentIds, [FromQuery] string roles)
+        public IActionResult GetTranscript(string scheduleIds, [FromQuery] string roles)
         {
             if (string.IsNullOrEmpty(roles)) return BadRequest(new { Message = "Role tidak boleh kosong" });
             if (roles != "Psikolog" && roles != "Patient") return BadRequest(new { Message = "Role tidak Valid!" });
 
-            var transcripts = _service.GetTranscript(appointmentIds, roles);
+            var transcripts = _service.GetTranscript(scheduleIds, roles);
 
             if (transcripts == null) return NotFound(new { Message = "Transcript tidak ditemukan!"});
 
             return Ok(new { 
-                appointmentId = appointmentIds,
+                scheduleId = scheduleIds,
                 role = roles,
                 transcript = transcripts
             });
@@ -67,7 +67,7 @@ namespace Backend.Controllers
 
     public class TranscriptReq 
     { 
-        public int AppointmentId { get; set; }
+        public string scheduleId{ get; set; }
         public IFormFile AudioFile { get; set; }
     }
 }

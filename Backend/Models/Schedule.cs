@@ -3,6 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
+    public enum ScheduleStatus { Tersedia, Terbooking, Selesai }
+
     public class Schedule
     {
         [JsonPropertyName("scheduleId")]
@@ -15,10 +17,25 @@ namespace Backend.Models
         public SessionInfo Session { get; set; }
 
         [JsonPropertyName("status")]
-        public string Status { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public ScheduleStatus Status { get; set; } = ScheduleStatus.Tersedia;
 
         [JsonPropertyName("bookedBy")]
         public BookedBy? BookedBy { get; set; }
+
+        private static readonly Dictionary<(ScheduleStatus, string), ScheduleStatus> Transitions = new()
+        {
+            [(ScheduleStatus.Tersedia, "Booking")] = ScheduleStatus.Terbooking,
+            [(ScheduleStatus.Terbooking, "SelesaiRekam")] = ScheduleStatus.Selesai,
+        };
+
+        public void Apply(string evt)
+        {
+            if (!Transitions.TryGetValue((Status, evt), out var next))
+                throw new InvalidOperationException($"Status '{Status}' tidak bisa diproses dengan event '{evt}'");
+
+            Status = next;
+        }
     }
 
     public class PsikologInfo

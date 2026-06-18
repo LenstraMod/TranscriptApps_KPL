@@ -14,14 +14,11 @@ namespace Backend.Services
             _scheduleList = _jsonHelper.LoadJson<Schedule>("schedule.json");
         }
 
-        public List<Schedule> GetAll()
-        {
-            return _scheduleList;
-        }
+        public List<Schedule> GetAll() => _scheduleList;
 
         public List<Schedule> GetAvailable()
         {
-            return _scheduleList.Where(s => s.Status == "tersedia").ToList();
+            return _scheduleList.Where(s => s.Status == ScheduleStatus.Tersedia).ToList();
         }
 
         public List<Schedule> GetByPsikolog(int psikologId)
@@ -37,21 +34,26 @@ namespace Backend.Services
         public bool BookSchedule(string scheduleId, BookedBy bookedBy)
         {
             var schedule = _scheduleList.FirstOrDefault(s => s.ScheduleId == scheduleId);
-            if (schedule == null || schedule.Status != "tersedia") return false;
+            if (schedule == null) return false;
 
-            schedule.Status = "terbooking";
+            try { schedule.Apply("Booking"); }
+            catch (InvalidOperationException) { return false; }
+
             schedule.BookedBy = bookedBy;
-
             SaveData();
             return true;
         }
 
-        public bool UpdateStatus(string scheduleId, string newStatus)
+        // dulu: UpdateStatus(scheduleId, newStatus) -- newStatus = status tujuan langsung
+        // sekarang: evt = nama event, divalidasi lewat Schedule.Apply()
+        public bool ApplyEvent(string scheduleId, string evt)
         {
             var schedule = _scheduleList.FirstOrDefault(s => s.ScheduleId == scheduleId);
             if (schedule == null) return false;
 
-            schedule.Status = newStatus;
+            try { schedule.Apply(evt); }
+            catch (InvalidOperationException) { return false; }
+
             SaveData();
             return true;
         }
@@ -67,17 +69,14 @@ namespace Backend.Services
         public bool DeleteSchedule(string scheduleId)
         {
             var schedule = _scheduleList.FirstOrDefault(s => s.ScheduleId == scheduleId);
-            if (schedule == null || schedule.Status != "tersedia") return false;
+            if (schedule == null || schedule.Status != ScheduleStatus.Tersedia) return false;
 
             _scheduleList.Remove(schedule);
             SaveData();
             return true;
         }
 
-        private void SaveData()
-        {
-            _jsonHelper.SaveJson("schedule.json", _scheduleList);
-        }
+        private void SaveData() => _jsonHelper.SaveJson("schedule.json", _scheduleList);
 
         private string GenerateNextId()
         {
