@@ -21,6 +21,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+	  <PackageReference Include="NAudio" Version="2.3.0" />
   </ItemGroup>
 
 </Project>
