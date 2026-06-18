@@ -58,15 +58,5 @@
     "email": "abe@gmail.com",
     "password": "abe12345",
     "role": "Patient"
-  },
-  {
-    "BirthDate": "2026-06-18T16:06:09.79Z",
-    "phoneNumber": "string",
-    "Gender": "string",
-    "Id": 1,
-    "Name": "Test2",
-    "email": "Test2@gmail.com",
-    "password": "Test2",
-    "role": "Patient"
   }
 ]
