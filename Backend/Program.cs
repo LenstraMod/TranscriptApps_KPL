@@ -25,6 +25,7 @@ namespace Backend
             });
 
             builder.Services.AddSingleton<AuthService>();
+            builder.Services.AddScoped<ScheduleService>();
 
             var app = builder.Build();
 
