@@ -11,20 +11,11 @@ namespace Frontend
             InitializeComponent();
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
+        private void label1_Click(object sender, EventArgs e) { }
 
-        }
+        private void loginpage_Load(object sender, EventArgs e) { }
 
-        private void loginpage_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        private void textBox2_TextChanged(object sender, EventArgs e) { }
 
         private void btnDftr_Click(object sender, EventArgs e)
         {
@@ -35,40 +26,76 @@ namespace Frontend
 
         private async void btnMasuk_Click(object sender, EventArgs e)
         {
-            // 1. Bungkus data dari textbox ke dalam sebuah objek (sesuai LoginRequest di backend)
             var loginData = new
             {
                 Email = txtUsername.Text,
                 Password = txtPassword.Text
             };
-            // 2. Ubah data tersebut menjadi format JSON
+
             string json = JsonSerializer.Serialize(loginData);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
-            // 3. Kirim ke Backend menggunakan HttpClient
-            using (HttpClient client = new HttpClient())
-            {
-                try
-                {
-                    // Pastikan port 7199 sesuai dengan terminal backend-mu
-                    HttpResponseMessage response = await client.PostAsync("https://localhost:7199/api/auth/login", content);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        MessageBox.Show("Login Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                        // Pindah ke Home Page
-                        Home halamanHome = new Home();
-                        halamanHome.Show();
-                        this.Hide();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Email atau password salah!", "Gagal", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-                catch (Exception ex)
+            try
+            {
+                HttpResponseMessage response = await ApiClient.Http.PostAsync(
+                    $"{ApiClient.BaseUrl}/api/auth/login", content);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    MessageBox.Show("Gagal terhubung ke server: " + ex.Message, "Error");
+                    string responseJson = await response.Content.ReadAsStringAsync();
+
+                    // Guard: body kosong tidak bisa di-parse — terjadi jika server error tanpa body
+                    if (string.IsNullOrWhiteSpace(responseJson))
+                    {
+                        MessageBox.Show("Server mengembalikan respons kosong.", "Error");
+                        return;
+                    }
+
+                    using var doc = JsonDocument.Parse(responseJson);
+                    var root = doc.RootElement;
+
+                    // TryGetProperty lebih aman dari GetProperty — tidak lempar exception
+                    // jika backend berubah dan properti tidak ada
+                    SessionManager.UserId = root.TryGetProperty("id", out var idProp)
+                        ? idProp.GetInt32() : 0;
+                    SessionManager.UserName = root.TryGetProperty("name", out var nameProp)
+                        ? nameProp.GetString() ?? "" : "";
+                    SessionManager.UserRole = root.TryGetProperty("role", out var roleProp)
+                        ? roleProp.GetString() ?? "" : "";
+                    SessionManager.UserEmail = root.TryGetProperty("email", out var emailProp)
+                        ? emailProp.GetString() ?? "" : "";
+
+                    MessageBox.Show(
+                        $"Login Berhasil! Selamat datang, {SessionManager.UserName}.",
+                        "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    Home halamanHome = new Home();
+                    halamanHome.Show();
+                    this.Hide();
                 }
+                else
+                {
+                    // Coba tampilkan pesan dari body server jika ada
+                    string errBody = await response.Content.ReadAsStringAsync();
+                    string pesan = "Email atau password salah!";
+
+                    if (!string.IsNullOrWhiteSpace(errBody))
+                    {
+                        try
+                        {
+                            using var errDoc = JsonDocument.Parse(errBody);
+                            if (errDoc.RootElement.TryGetProperty("message", out var msgProp))
+                                pesan = msgProp.GetString() ?? pesan;
+                        }
+                        catch { /* body bukan JSON, pakai pesan default */ }
+                    }
+
+                    MessageBox.Show(pesan, "Gagal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal terhubung ke server: " + ex.Message, "Error");
             }
         }
     }

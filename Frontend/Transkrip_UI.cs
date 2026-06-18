@@ -1,121 +1,247 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
+using System;
 using System.IO;
+using System.Net.Http;
+using System.Text.Json;
+using System.Windows.Forms;
 using NAudio.Wave;
 
 namespace Frontend
 {
     public partial class Transkrip_UI : Form
     {
-        // Variabel untuk NAudio (Perekaman)
-        private WaveInEvent waveIn;
-        private WaveFileWriter waveWriter;
-        private string outputAudioPath;
+        // Variabel NAudio — null saat tidak sedang merekam
+        private WaveInEvent? waveIn;
+        private WaveFileWriter? waveWriter;
 
-        public Transkrip_UI()
+        // Path file audio hasil rekaman — null sebelum START diklik
+        private string? outputAudioPath;
+
+        // ID jadwal yang sedang diproses, diterima dari card yang diklik di Home
+        private readonly string _scheduleId;
+
+        // Role user yang login, menentukan tampilan transcript mana yang lebih relevan
+        private readonly string _userRole;
+
+        // Constructor utama: dipanggil oleh UserControl1 saat card diklik
+        public Transkrip_UI(string scheduleId, string userRole)
         {
             InitializeComponent();
+            _scheduleId = scheduleId;
+            _userRole = userRole;
 
-            // Memastikan kotak Draft dan Final dalam keadaan kosong saat dimuat
             txtDraft.Clear();
             txtFinal.Clear();
         }
 
-        // 1. Fungsi saat tombol START diklik
+        // Fallback constructor tanpa parameter (untuk kompatibilitas)
+        public Transkrip_UI() : this("", SessionManager.UserRole) { }
+
+        // ---- TOMBOL START REKAM ----
         private void button1_Click(object sender, EventArgs e)
         {
+            // Cegah klik START dua kali saat masih merekam
+            if (waveIn != null)
+            {
+                MessageBox.Show("Perekaman sudah berjalan.", "Info",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
-                // Tentukan jalur folder 'audio' di dalam folder Debug/Release aplikasi
                 string folderAudio = Path.Combine(Application.StartupPath, "audio");
-
-                // Jika folder 'audio' belum ada, buat foldernya secara otomatis
                 if (!Directory.Exists(folderAudio))
-                {
                     Directory.CreateDirectory(folderAudio);
-                }
 
-                // Tentukan lokasi file audio di dalam folder baru tersebut
-                string namaFile = $"rekaman_{DateTime.Now:yyyyMMdd_HHmmss}.wav"; // Menggunakan timestamp agar file tidak menimpa yang lama
+                // Timestamp di nama file mencegah file lama tertimpa
+                string namaFile = $"rekaman_{DateTime.Now:yyyyMMdd_HHmmss}.wav";
                 outputAudioPath = Path.Combine(folderAudio, namaFile);
 
-                // Konfigurasi NAudio
                 waveIn = new WaveInEvent();
-                waveIn.WaveFormat = new WaveFormat(44100, 1); // Mono, 44.1kHz
-
+                waveIn.WaveFormat = new WaveFormat(44100, 1); // mono, 44.1kHz
                 waveIn.DataAvailable += WaveIn_DataAvailable;
                 waveIn.RecordingStopped += WaveIn_RecordingStopped;
 
                 waveWriter = new WaveFileWriter(outputAudioPath, waveIn.WaveFormat);
-
-                // Mulai merekam
                 waveIn.StartRecording();
 
-                // Pop-up notifikasi kecil indikator bahwa mic aktif sedang merekam
-                MessageBox.Show("Merekam... Silakan berbicara.", "Informasi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Merekam... Silakan berbicara.", "Informasi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Gagal memulai perekaman: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Bersihkan state jika inisialisasi gagal di tengah jalan
+                waveWriter?.Dispose(); waveWriter = null;
+                waveIn?.Dispose(); waveIn = null;
+                MessageBox.Show("Gagal memulai perekaman: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // Menulis data suara dari mic ke file .wav
+        // Dipanggil NAudio tiap ada chunk suara baru — tulis langsung ke file WAV
         private void WaveIn_DataAvailable(object sender, WaveInEventArgs e)
         {
-            if (waveWriter != null)
-            {
-                waveWriter.Write(e.Buffer, 0, e.BytesRecorded);
-                waveWriter.Flush();
-            }
+            waveWriter?.Write(e.Buffer, 0, e.BytesRecorded);
+            waveWriter?.Flush();
         }
 
-        // 2. Fungsi saat tombol STOP diklik
+        // ---- TOMBOL STOP REKAM ----
         private void buttonStop_Click(object sender, EventArgs e)
         {
-            if (waveIn != null)
+            if (waveIn == null)
             {
-                waveIn.StopRecording(); // Menghentikan perekaman mikrofon
+                MessageBox.Show("Tidak ada perekaman yang sedang berjalan.", "Info",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+            waveIn.StopRecording();
         }
 
-        // Event yang dipicu otomatis saat perekaman berhenti
+        // Dipanggil otomatis NAudio setelah StopRecording() selesai
         private void WaveIn_RecordingStopped(object sender, StoppedEventArgs e)
         {
-            // Tutup dan lepaskan resource file writer
-            if (waveWriter != null)
+            // Lepaskan resource audio
+            waveWriter?.Dispose(); waveWriter = null;
+            waveIn?.Dispose(); waveIn = null;
+
+            // Guard: jika outputAudioPath null, berarti START belum pernah diklik
+            if (string.IsNullOrEmpty(outputAudioPath))
             {
-                waveWriter.Dispose();
-                waveWriter = null;
+                MessageBox.Show("File audio tidak ditemukan.", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-            if (waveIn != null)
-            {
-                waveIn.Dispose();
-                waveIn = null;
-            }
+            MessageBox.Show(
+                $"Perekaman selesai!\nFile: {outputAudioPath}\n\nMengunggah ke server...",
+                "Perekaman Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            // Berikan pop-up sukses beserta lokasi folder barunya
-            MessageBox.Show($"Perekaman selesai!\n\nFile disimpan di folder khusus:\n{outputAudioPath}",
-                            "Perekaman Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // BeginInvoke: kembalikan eksekusi ke UI thread sebelum jalankan async
+            // (WaveIn_RecordingStopped bisa dipanggil dari thread NAudio bukan UI thread)
+            this.BeginInvoke(new Action(async () => await UploadAndTranscribe()));
         }
 
-        // Tombol Back untuk kembali ke HomePage
-        private void buttonBack_Click(object sender, EventArgs e)
+        // Mengunggah file WAV ke backend untuk diproses Gemini AI
+        private async Task UploadAndTranscribe()
         {
-            if (waveIn != null)
+            // Guard ganda: scheduleId dan path audio harus ada
+            if (string.IsNullOrEmpty(_scheduleId))
             {
-                waveIn.StopRecording();
+                MessageBox.Show("Tidak ada jadwal yang dipilih. Buka form ini dari card jadwal.",
+                    "Info", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
-            this.Hide();
-            HomePage halamanHome = new HomePage();
-            halamanHome.ShowDialog();
+            if (string.IsNullOrEmpty(outputAudioPath) || !File.Exists(outputAudioPath))
+            {
+                MessageBox.Show("File audio tidak ditemukan di: " + outputAudioPath, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                byte[] audioBytes = File.ReadAllBytes(outputAudioPath);
+
+                // Multipart/form-data sesuai yang diharapkan TranscriptController
+                using var formData = new MultipartFormDataContent();
+                formData.Add(new StringContent(_scheduleId), "scheduleId");
+                formData.Add(new ByteArrayContent(audioBytes), "AudioFile",
+                    Path.GetFileName(outputAudioPath));
+
+                var response = await ApiClient.Http.PostAsync(
+                    $"{ApiClient.BaseUrl}/api/transcript/generate", formData);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Ekstrak pesan error dari body JSON backend jika ada
+                    string errBody = await response.Content.ReadAsStringAsync();
+                    string errMsg = $"HTTP {(int)response.StatusCode}";
+
+                    if (!string.IsNullOrWhiteSpace(errBody))
+                    {
+                        try
+                        {
+                            using var errDoc = JsonDocument.Parse(errBody);
+                            if (errDoc.RootElement.TryGetProperty("message", out var mp))
+                                errMsg = mp.GetString() ?? errMsg;
+                        }
+                        catch { errMsg += "\n" + errBody; /* body bukan JSON */ }
+                    }
+
+                    MessageBox.Show("Gagal membuat transcript:\n" + errMsg, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                MessageBox.Show("Transcript berhasil dibuat! Memuat...", "Sukses",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                await LoadBothTranscripts();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error saat upload audio: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Mengambil kedua versi transcript dari backend dan menampilkannya
+        // txtDraft = versi sederhana (Patient-friendly)
+        // txtFinal = versi teknis klinis (Psikolog)
+        private async Task LoadBothTranscripts()
+        {
+            try
+            {
+                var simpleResp = await ApiClient.Http.GetAsync(
+                    $"{ApiClient.BaseUrl}/api/transcript/{_scheduleId}?role=Patient");
+
+                var techResp = await ApiClient.Http.GetAsync(
+                    $"{ApiClient.BaseUrl}/api/transcript/{_scheduleId}?role=Psikolog");
+
+                if (simpleResp.IsSuccessStatusCode)
+                {
+                    string json = await simpleResp.Content.ReadAsStringAsync();
+
+                    // Guard: body kosong tidak bisa di-parse — ini sumber utama "no JSON tokens"
+                    if (!string.IsNullOrWhiteSpace(json))
+                    {
+                        using var doc = JsonDocument.Parse(json);
+                        // TryGetProperty: tidak lempar exception jika properti tidak ada
+                        if (doc.RootElement.TryGetProperty("transcript", out var tp))
+                            txtDraft.Text = tp.GetString() ?? "";
+                    }
+                }
+
+                if (techResp.IsSuccessStatusCode)
+                {
+                    string json = await techResp.Content.ReadAsStringAsync();
+
+                    if (!string.IsNullOrWhiteSpace(json))
+                    {
+                        using var doc = JsonDocument.Parse(json);
+                        if (doc.RootElement.TryGetProperty("transcript", out var tp))
+                            txtFinal.Text = tp.GetString() ?? "";
+                    }
+                }
+
+                // Tampilkan pesan jika kedua field masih kosong setelah fetch
+                if (string.IsNullOrEmpty(txtDraft.Text) && string.IsNullOrEmpty(txtFinal.Text))
+                    MessageBox.Show("Transcript belum tersedia untuk jadwal ini.", "Info",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal memuat transcript: " + ex.Message, "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // ---- TOMBOL BACK ----
+        private void buttonBack_Click(object sender, EventArgs e)
+        {
+            // Hentikan rekaman jika masih berjalan (tidak throw jika null)
+            waveIn?.StopRecording();
             this.Close();
         }
     }

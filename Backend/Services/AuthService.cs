@@ -52,9 +52,10 @@ namespace Backend.Services
         }
 
         private int GetNextId()
-        { 
+        {
             int maxPsikolog = _psikologList.Any() ? _psikologList.Max(p => p.Id) : 0;
-            int maxPatient = _patientList.Any() ? _psikologList.Max(p => p.Id) : 0;
+            // Bug fix: sebelumnya salah menggunakan _psikologList dua kali — seharusnya _patientList
+            int maxPatient = _patientList.Any() ? _patientList.Max(p => p.Id) : 0;
 
             return Math.Max(maxPsikolog, maxPatient) + 1;
         }

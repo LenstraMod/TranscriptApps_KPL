@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -17,11 +17,9 @@ namespace Frontend
             InitializeComponent();
         }
 
-        private void label3_Click(object sender, EventArgs e)
-        {
+        private void label3_Click(object sender, EventArgs e) { }
 
-        }
-
+        // Tombol "Sudah punya akun? Login" — kembali ke halaman login
         private void button1_Click(object sender, EventArgs e)
         {
             loginpage halamanLogin = new loginpage();
@@ -29,21 +27,19 @@ namespace Frontend
             this.Hide();
         }
 
-        private void RegisterPage_Load(object sender, EventArgs e)
-        {
-
-        }
+        private void RegisterPage_Load(object sender, EventArgs e) { }
 
         private async void btnDaftar_Click(object sender, EventArgs e)
         {
-            // 1. Cek apakah password dan konfirmasi sama
+            // Validasi: password dan konfirmasi harus cocok
             if (txtPasswordReg.Text != txtConfirmPassword.Text)
             {
-                MessageBox.Show("Konfirmasi password tidak cocok!", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Konfirmasi password tidak cocok!", "Peringatan",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // 2. Bungkus data asli + data dummy untuk memenuhi syarat class Patient
+            // Bungkus data registrasi (tambah nilai default untuk field wajib Patient)
             var registerData = new
             {
                 Name = txtNama.Text,
@@ -52,44 +48,40 @@ namespace Frontend
                 BirthDate = DateTime.Now.ToString("yyyy-MM-dd"),
                 phoneNumber = "081234567890",
                 Gender = "Pria",
-                role = "Patient" // <-- TAMBAHKAN BARIS INI
+                role = "Patient"
             };
 
-            // 3. Ubah data menjadi JSON agar bisa dibaca Backend
             string json = JsonSerializer.Serialize(registerData);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            // 4. Kirim ke Backend
-            using (HttpClient client = new HttpClient())
+            try
             {
-                try
-                {
-                    // Pastikan URL ini pakai port yang muncul di terminal hitammu (7199 atau 5148)
-                    HttpResponseMessage response = await client.PostAsync("https://localhost:7199/api/auth/register", content);
+                // Kirim POST ke endpoint register menggunakan ApiClient bersama (SSL bypass)
+                HttpResponseMessage response = await ApiClient.Http.PostAsync(
+                    $"{ApiClient.BaseUrl}/api/auth/register", content);
 
-                    // 5. Jika backend merespons OK (Sukses masuk database)
-                    if (response.IsSuccessStatusCode)
-                    {
-                        MessageBox.Show("Registrasi Berhasil! Silakan Login.", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                        // Transisi ke Halaman Login dengan mulus
-                        loginpage halamanLogin = new loginpage();
-                        this.Hide();
-                        halamanLogin.ShowDialog();
-                        this.Close();
-                    }
-                    // ... kode try dan if (response.IsSuccessStatusCode) sebelumnya ...
-                    else
-                    {
-                        // Membaca alasan penolakan asli dari server
-                        string errorResponse = await response.Content.ReadAsStringAsync();
-                        MessageBox.Show("Gagal mendaftar! Balasan server:\n" + errorResponse, "Gagal", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-                catch (Exception ex)
+                if (response.IsSuccessStatusCode)
                 {
-                    MessageBox.Show("Gagal terhubung ke server: " + ex.Message, "Error");
+                    MessageBox.Show("Registrasi Berhasil! Silakan Login.", "Sukses",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    // Setelah berhasil, kembali ke halaman login
+                    loginpage halamanLogin = new loginpage();
+                    this.Hide();
+                    halamanLogin.ShowDialog();
+                    this.Close();
                 }
+                else
+                {
+                    // Tampilkan pesan error dari server
+                    string errorResponse = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show("Gagal mendaftar! Balasan server:\n" + errorResponse,
+                        "Gagal", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Gagal terhubung ke server: " + ex.Message, "Error");
             }
         }
     }

@@ -17,42 +17,56 @@ namespace Backend.Controllers
         public async Task<IActionResult> Generate([FromForm] TranscriptReq req)
         {
             if (req.AudioFile == null || req.AudioFile.Length == 0)
-            {
-                return BadRequest(new { Message = "Audio File Kosong" });
-            }
+                return BadRequest(new { message = "Audio File Kosong" });
 
-            //Ubah IFormFile jadi byte[]
+            if (string.IsNullOrWhiteSpace(req.scheduleId))
+                return BadRequest(new { message = "scheduleId tidak boleh kosong" });
+
+            // Ubah IFormFile ke byte[] agar bisa dikirim ke GeminiService
             using var memoryStream = new MemoryStream();
             await req.AudioFile.CopyToAsync(memoryStream);
             byte[] audioBytes = memoryStream.ToArray();
 
-            var transcript = await _service.GenerateTranscript(
-                req.scheduleId,
-                audioBytes
-             );
-
-            return Ok(new
+            try
             {
-                message = "Transcript berhasil dibuat!",
-                appointmentId = transcript.scheduleId,
-                generatedAt = transcript.createdAt
-            });
+                var transcript = await _service.GenerateTranscript(req.scheduleId, audioBytes);
+
+                return Ok(new
+                {
+                    message = "Transcript berhasil dibuat!",
+                    appointmentId = transcript.scheduleId,
+                    generatedAt = transcript.createdAt
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Terjadi saat jadwal belum Terbooking atau sudah Selesai
+                // Kembalikan 400 dengan pesan yang bisa dibaca frontend, bukan 500 kosong
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Error lain: Gemini API gagal, file error, dll.
+                return StatusCode(500, new { message = "Server error: " + ex.Message });
+            }
         }
 
-        [HttpGet("{appointmentId}")]
-        public IActionResult GetTranscript(string scheduleIds, [FromQuery] string roles)
+        // Bug fix: nama parameter route {scheduleId} harus sama dengan nama parameter method
+        // Sebelumnya: route pakai {appointmentId} tapi parameter pakai scheduleIds — tidak terikat
+        [HttpGet("{scheduleId}")]
+        public IActionResult GetTranscript(string scheduleId, [FromQuery] string role)
         {
-            if (string.IsNullOrEmpty(roles)) return BadRequest(new { Message = "Role tidak boleh kosong" });
-            if (roles != "Psikolog" && roles != "Patient") return BadRequest(new { Message = "Role tidak Valid!" });
+            if (string.IsNullOrEmpty(role)) return BadRequest(new { Message = "Role tidak boleh kosong" });
+            if (role != "Psikolog" && role != "Patient") return BadRequest(new { Message = "Role tidak Valid!" });
 
-            var transcripts = _service.GetTranscript(scheduleIds, roles);
+            var transcript = _service.GetTranscript(scheduleId, role);
 
-            if (transcripts == null) return NotFound(new { Message = "Transcript tidak ditemukan!"});
+            if (transcript == null) return NotFound(new { Message = "Transcript tidak ditemukan!" });
 
-            return Ok(new { 
-                scheduleId = scheduleIds,
-                role = roles,
-                transcript = transcripts
+            return Ok(new {
+                scheduleId = scheduleId,
+                role = role,
+                transcript = transcript   // teks transcript langsung (string), bukan objek
             });
         }
 

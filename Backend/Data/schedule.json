@@ -9,15 +9,15 @@
       "experience": 8
     },
     "session": {
-      "date": "2026-06-15",
-      "day": "Monday",
+      "date": "2026-06-25",
+      "day": "Wednesday",
       "startTime": "09:00",
-      "endTime": "12:00",
+      "endTime": "10:00",
       "method": "online",
-      "meetingLink": "https://meet.example.com/budi-001",
+      "meetingLink": "https://meet.google.com/budi-sesi-001",
       "location": null
     },
-    "status": "tersedia",
+    "status": "Tersedia",
     "bookedBy": null
   },
   {
@@ -30,23 +30,23 @@
       "experience": 8
     },
     "session": {
-      "date": "2026-06-18",
-      "day": "Wednesday",
+      "date": "2026-06-27",
+      "day": "Friday",
       "startTime": "13:00",
-      "endTime": "16:00",
+      "endTime": "14:00",
       "method": "offline",
       "meetingLink": null,
-      "location": "Klinik Psikologi Bandung, Jl. Merdeka No. 10, Bandung"
+      "location": "Klinik Psikologi Sejahtera, Jl. Sudirman No. 45, Jakarta"
     },
-    "status": "terbooking",
+    "status": "Terbooking",
     "bookedBy": {
       "patientId": 1,
-      "name": "Abe",
+      "name": "Rian Hidayat",
       "contact": {
-        "phone": "08123123",
-        "email": "abe@gmail.com"
+        "phone": "081234567890",
+        "email": "rian.hidayat@gmail.com"
       },
-      "complaint": "Mengalami kecemasan berlebih dan sulit tidur sejak 2 minggu terakhir.",
+      "complaint": "Mengalami kecemasan berlebih dan kesulitan tidur sejak 3 minggu terakhir akibat tekanan pekerjaan.",
       "sessionHistory": []
     }
   },
@@ -63,21 +63,29 @@
       "date": "2026-06-19",
       "day": "Friday",
       "startTime": "09:00",
-      "endTime": "12:00",
+      "endTime": "10:00",
       "method": "online",
-      "meetingLink": "https://meet.example.com/budi-003",
+      "meetingLink": "https://meet.google.com/budi-sesi-003",
       "location": null
     },
-    "status": "selesai",
+    "status": "Selesai",
     "bookedBy": {
-      "patientId": 0,
-      "name": null,
+      "patientId": 2,
+      "name": "Alya Putri",
       "contact": {
-        "phone": "081234567890",
-        "email": "rian.hidayat@gmail.com"
+        "phone": "082198765432",
+        "email": "alya.putri@yahoo.com"
       },
-      "complaint": "Stres akibat tekanan pekerjaan dan kesulitan mengatur emosi.",
-      "sessionHistory": []
+      "complaint": "Merasa tidak bersemangat dan kehilangan minat pada aktivitas yang biasanya disukai.",
+      "sessionHistory": [
+        {
+          "scheduleId": "SCH-003",
+          "date": "2026-06-19",
+          "method": "online",
+          "status": "Selesai",
+          "notes": "Sesi pertama. Klien terbuka dan kooperatif. Diidentifikasi gejala depresi ringan."
+        }
+      ]
     }
   },
   {
@@ -90,15 +98,15 @@
       "experience": 5
     },
     "session": {
-      "date": "2026-06-16",
+      "date": "2026-06-24",
       "day": "Tuesday",
       "startTime": "10:00",
-      "endTime": "14:00",
+      "endTime": "11:00",
       "method": "online",
-      "meetingLink": "https://meet.example.com/siti-004",
+      "meetingLink": "https://zoom.us/j/siti-sesi-004",
       "location": null
     },
-    "status": "tersedia",
+    "status": "Tersedia",
     "bookedBy": null
   },
   {
@@ -111,63 +119,46 @@
       "experience": 5
     },
     "session": {
-      "date": "2026-06-18",
+      "date": "2026-06-26",
       "day": "Thursday",
       "startTime": "14:00",
-      "endTime": "17:00",
+      "endTime": "15:00",
       "method": "offline",
       "meetingLink": null,
-      "location": "Klinik Kesehatan Mental, Jl. Sudirman No. 5, Jakarta"
+      "location": "Ruang Konseling Harmoni, Jl. Gatot Subroto No. 12, Bandung"
     },
-    "status": "terbooking",
+    "status": "Terbooking",
     "bookedBy": {
-      "patientId": 0,
-      "name": null,
+      "patientId": 3,
+      "name": "Dani Setiawan",
       "contact": {
-        "phone": "082198765432",
-        "email": "alya.putri@yahoo.com"
+        "phone": "085678901234",
+        "email": "dani.setiawan@gmail.com"
       },
-      "complaint": "Merasa cemas dan tidak percaya diri dalam lingkungan sosial.",
-      "sessionHistory": [
-        {
-          "scheduleId": "SCH-000",
-          "date": "2026-06-05",
-          "method": "online",
-          "status": "selesai",
-          "notes": "Pasien mulai terbuka, disarankan melanjutkan terapi kognitif."
-        }
-      ]
+      "complaint": "Konflik hubungan dengan pasangan yang berkepanjangan dan memengaruhi produktivitas kerja.",
+      "sessionHistory": []
     }
   },
   {
     "scheduleId": "SCH-006",
     "psychologist": {
-      "psychologistId": 3,
-      "name": "Andi Wijaya, M.Psi., Psikolog",
-      "email": "andi.wijaya@psikolog.com",
-      "strNumber": "STR-11223-2024",
-      "experience": 12
+      "psychologistId": 2,
+      "name": "Siti Rahma, S.Psi., M.Psi.",
+      "email": "siti.rahma@psikolog.com",
+      "strNumber": "STR-67890-2025",
+      "experience": 5
     },
     "session": {
-      "date": "2026-06-15",
-      "day": "Monday",
-      "startTime": "15:00",
-      "endTime": "18:00",
+      "date": "2026-07-01",
+      "day": "Wednesday",
+      "startTime": "11:00",
+      "endTime": "12:00",
       "method": "online",
-      "meetingLink": "https://meet.example.com/andi-006",
+      "meetingLink": "https://zoom.us/j/siti-sesi-006",
       "location": null
     },
-    "status": "terbooking",
-    "bookedBy": {
-      "patientId": 0,
-      "name": null,
-      "contact": {
-        "phone": "085711223344",
-        "email": "dewi.lestari@outlook.com"
-      },
-      "complaint": "Mengalami burnout dan kehilangan motivasi dalam pekerjaan.",
-      "sessionHistory": []
-    }
+    "status": "Tersedia",
+    "bookedBy": null
   },
   {
     "scheduleId": "SCH-007",
@@ -179,15 +170,83 @@
       "experience": 12
     },
     "session": {
-      "date": "2026-06-20",
-      "day": "Saturday",
-      "startTime": "09:00",
-      "endTime": "13:00",
+      "date": "2026-06-23",
+      "day": "Monday",
+      "startTime": "15:00",
+      "endTime": "16:00",
       "method": "offline",
       "meetingLink": null,
-      "location": "Klinik Harmoni, Jl. Gatot Subroto No. 22, Jakarta"
+      "location": "Klinik Tumbuh Kembang, Jl. Ahmad Yani No. 88, Surabaya"
     },
-    "status": "tersedia",
+    "status": "Tersedia",
     "bookedBy": null
+  },
+  {
+    "scheduleId": "SCH-008",
+    "psychologist": {
+      "psychologistId": 3,
+      "name": "Andi Wijaya, M.Psi., Psikolog",
+      "email": "andi.wijaya@psikolog.com",
+      "strNumber": "STR-11223-2024",
+      "experience": 12
+    },
+    "session": {
+      "date": "2026-06-28",
+      "day": "Saturday",
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "method": "online",
+      "meetingLink": "https://meet.google.com/andi-sesi-008",
+      "location": null
+    },
+    "status": "Terbooking",
+    "bookedBy": {
+      "patientId": 4,
+      "name": "Fitri Nurhaliza",
+      "contact": {
+        "phone": "089012345678",
+        "email": "fitri.nur@gmail.com"
+      },
+      "complaint": "Trauma pasca kecelakaan lalu lintas dua bulan lalu. Sering mimpi buruk dan menghindari kendaraan.",
+      "sessionHistory": []
+    }
+  },
+  {
+    "scheduleId": "SCH-009",
+    "psychologist": {
+      "psychologistId": 3,
+      "name": "Andi Wijaya, M.Psi., Psikolog",
+      "email": "andi.wijaya@psikolog.com",
+      "strNumber": "STR-11223-2024",
+      "experience": 12
+    },
+    "session": {
+      "date": "2026-06-20",
+      "day": "Saturday",
+      "startTime": "10:00",
+      "endTime": "11:00",
+      "method": "offline",
+      "meetingLink": null,
+      "location": "Klinik Tumbuh Kembang, Jl. Ahmad Yani No. 88, Surabaya"
+    },
+    "status": "Selesai",
+    "bookedBy": {
+      "patientId": 5,
+      "name": "Rizky Pratama",
+      "contact": {
+        "phone": "081398765432",
+        "email": "rizky.pratama@gmail.com"
+      },
+      "complaint": "Stres akademik menjelang ujian akhir semester dan merasa tidak mampu menghadapinya.",
+      "sessionHistory": [
+        {
+          "scheduleId": "SCH-009",
+          "date": "2026-06-20",
+          "method": "offline",
+          "status": "Selesai",
+          "notes": "Sesi pertama. Klien menunjukkan kecemasan performa tinggi. Diberikan teknik pernapasan dan restrukturisasi kognitif dasar."
+        }
+      ]
+    }
   }
 ]

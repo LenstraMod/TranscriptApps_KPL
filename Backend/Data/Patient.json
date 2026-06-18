@@ -58,5 +58,15 @@
     "email": "abe@gmail.com",
     "password": "abe12345",
     "role": "Patient"
+  },
+  {
+    "BirthDate": "2026-06-19T00:00:00",
+    "phoneNumber": "081234567890",
+    "Gender": "Pria",
+    "Id": 4,
+    "Name": "Araham Shalom nadeak",
+    "email": "Abe",
+    "password": "123456",
+    "role": "Patient"
   }
 ]
