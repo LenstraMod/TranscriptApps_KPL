@@ -2,9 +2,10 @@
 {
     public class Transcript
     {
-        public int Id { get; set; }
-        public string PsikologScript { get; set; }
-        public string PatientScript { get; set; }
+        public int id { get; set; }
+        public int appointmentId { get; set; }
+        public string technicalTranscript { get; set; }
+        public string simplifiedTranscripts { get; set; }
         public DateTime createdAt { get; set; }
     }
 }

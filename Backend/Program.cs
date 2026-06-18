@@ -27,6 +27,9 @@ namespace Backend
             builder.Services.AddSingleton<AuthService>();
             builder.Services.AddScoped<ScheduleService>();
 
+            builder.Services.AddSingleton<GeminiService>();
+            builder.Services.AddSingleton<TranscriptService>();
+    
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
