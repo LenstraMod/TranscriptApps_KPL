@@ -56,7 +56,7 @@ namespace Frontend
                         MessageBox.Show("Login Berhasil!", "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                         // Pindah ke Home Page
-                        HomePage halamanHome = new HomePage();
+                        Home halamanHome = new Home();
                         halamanHome.Show();
                         this.Hide();
                     }
