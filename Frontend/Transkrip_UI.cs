@@ -104,25 +104,36 @@ namespace Frontend
             waveWriter?.Dispose(); waveWriter = null;
             waveIn?.Dispose(); waveIn = null;
 
-            // Guard: jika outputAudioPath null, berarti START belum pernah diklik
-            if (string.IsNullOrEmpty(outputAudioPath))
+            // Capture path SEKARANG sebelum BeginInvoke dijalankan.
+            // Tanpa ini, jika user langsung klik START lagi, outputAudioPath
+            // akan tertimpa path rekaman baru sebelum UploadAndTranscribe sempat jalan.
+            string? capturedPath = outputAudioPath;
+            outputAudioPath = null; // reset agar state bersih untuk rekaman berikutnya
+
+            if (string.IsNullOrEmpty(capturedPath))
             {
-                MessageBox.Show("File audio tidak ditemukan.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Tetap pakai BeginInvoke agar MessageBox muncul di UI thread
+                this.BeginInvoke(new Action(() =>
+                    MessageBox.Show("File audio tidak ditemukan.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error)));
                 return;
             }
 
-            MessageBox.Show(
-                $"Perekaman selesai!\nFile: {outputAudioPath}\n\nMengunggah ke server...",
-                "Perekaman Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            // BeginInvoke: kembalikan eksekusi ke UI thread sebelum jalankan async
-            // (WaveIn_RecordingStopped bisa dipanggil dari thread NAudio bukan UI thread)
-            this.BeginInvoke(new Action(async () => await UploadAndTranscribe()));
+            // Semua UI logic (MessageBox + upload) HARUS jalan di UI thread.
+            // WaveIn_RecordingStopped dipanggil dari thread NAudio — tanpa BeginInvoke,
+            // MessageBox bisa muncul di belakang window dan tidak terlihat user.
+            this.BeginInvoke(new Action(async () =>
+            {
+                MessageBox.Show(
+                    $"Perekaman selesai!\nFile: {capturedPath}\n\nMengunggah ke server...",
+                    "Perekaman Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await UploadAndTranscribe(capturedPath);
+            }));
         }
 
         // Mengunggah file WAV ke backend untuk diproses Gemini AI
-        private async Task UploadAndTranscribe()
+        // audioPath: path hasil capture saat rekaman berhenti — sudah aman dari race condition
+        private async Task UploadAndTranscribe(string audioPath)
         {
             // Guard ganda: scheduleId dan path audio harus ada
             if (string.IsNullOrEmpty(_scheduleId))
@@ -132,22 +143,22 @@ namespace Frontend
                 return;
             }
 
-            if (string.IsNullOrEmpty(outputAudioPath) || !File.Exists(outputAudioPath))
+            if (string.IsNullOrEmpty(audioPath) || !File.Exists(audioPath))
             {
-                MessageBox.Show("File audio tidak ditemukan di: " + outputAudioPath, "Error",
+                MessageBox.Show("File audio tidak ditemukan di: " + audioPath, "Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             try
             {
-                byte[] audioBytes = File.ReadAllBytes(outputAudioPath);
+                byte[] audioBytes = File.ReadAllBytes(audioPath);
 
                 // Multipart/form-data sesuai yang diharapkan TranscriptController
                 using var formData = new MultipartFormDataContent();
                 formData.Add(new StringContent(_scheduleId), "scheduleId");
                 formData.Add(new ByteArrayContent(audioBytes), "AudioFile",
-                    Path.GetFileName(outputAudioPath));
+                    Path.GetFileName(audioPath));
 
                 var response = await ApiClient.Http.PostAsync(
                     $"{ApiClient.BaseUrl}/api/transcript/generate", formData);

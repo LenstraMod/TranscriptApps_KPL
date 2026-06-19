@@ -64,6 +64,7 @@ namespace Backend.Services
         public bool AddSchedule(Schedule newSchedule)
         {
             newSchedule.ScheduleId = GenerateNextId();
+            newSchedule.Status = ScheduleStatus.Terbooking;
             _scheduleList.Add(newSchedule);
             SaveData();
             return true;
@@ -72,7 +73,6 @@ namespace Backend.Services
         public bool EditSchedule(string scheduleId, SessionInfo updatedSession)
         {
             var schedule = _scheduleList.FirstOrDefault(s => s.ScheduleId == scheduleId);
-            if (schedule == null || schedule.Status != ScheduleStatus.Tersedia) return false;
 
             schedule.Session = updatedSession;
             SaveData();
@@ -82,7 +82,7 @@ namespace Backend.Services
         public bool DeleteSchedule(string scheduleId)
         {
             var schedule = _scheduleList.FirstOrDefault(s => s.ScheduleId == scheduleId);
-            if (schedule == null || schedule.Status != ScheduleStatus.Tersedia) return false;
+            if (schedule == null) return false;
 
             _scheduleList.Remove(schedule);
             SaveData();

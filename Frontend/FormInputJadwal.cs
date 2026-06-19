@@ -21,7 +21,7 @@ namespace Frontend
         public FormInputJadwal()
         {
             InitializeComponent();
-            btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // btnSave.Click sudah didaftarkan di Designer — jangan tambah lagi di sini
             btnPilihGambar.Click += new System.EventHandler(this.btnPilihGambar_Click);
         }
 
@@ -29,7 +29,6 @@ namespace Frontend
         public FormInputJadwal(string scheduleId, SessionDto existingSession)
         {
             InitializeComponent();
-            btnSave.Click += new System.EventHandler(this.btnSave_Click);
             btnPilihGambar.Click += new System.EventHandler(this.btnPilihGambar_Click);
 
             _editScheduleId = scheduleId;

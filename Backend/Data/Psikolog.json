@@ -3,7 +3,7 @@
     "id": 1,
     "name": "Dr. Budi Santoso, M.Psi.",
     "email": "budi.santoso@psikolog.com",
-    "password": "hashed_password_123",
+    "password": "git",
     "role": "Psikolog",
     "strNumber": "STR-12345-2026",
     "experience": 8,
