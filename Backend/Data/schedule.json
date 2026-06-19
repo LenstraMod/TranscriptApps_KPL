@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "scheduleId": "SCH-001",
+    "psychologist": {
+      "psychologistId": 1,
+      "name": "Dr. Budi Santoso, M.Psi.",
+      "email": "budi.santoso@psikolog.com",
+      "strNumber": "",
+      "experience": 0
+    },
+    "session": {
+      "date": "2026-06-19",
+      "day": "",
+      "startTime": "Tempat input jam mulai",
+      "endTime": "Tempat input jam selesai",
+      "method": "",
+      "meetingLink": null,
+      "location": null
+    },
+    "status": "Terbooking",
+    "bookedBy": null
+  }
+]

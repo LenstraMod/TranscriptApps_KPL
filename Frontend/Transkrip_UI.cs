@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
@@ -65,8 +66,12 @@ namespace Frontend
                 waveWriter = new WaveFileWriter(outputAudioPath, waveIn.WaveFormat);
                 waveIn.StartRecording();
 
-                MessageBox.Show("Merekam... Silakan berbicara.", "Informasi",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Tunjukkan status rekaman di UI — TANPA MessageBox karena itu memblokir UI thread
+                // dan mencegah user mengklik STOP sampai dialog ditutup
+                button1.Text = "● Merekam...";
+                button1.BackColor = Color.LightCoral;
+                button1.Enabled = false;
+                buttonStop.Enabled = true;
             }
             catch (Exception ex)
             {
@@ -119,14 +124,17 @@ namespace Frontend
                 return;
             }
 
-            // Semua UI logic (MessageBox + upload) HARUS jalan di UI thread.
+            // Semua UI logic (reset button + upload) HARUS jalan di UI thread.
             // WaveIn_RecordingStopped dipanggil dari thread NAudio — tanpa BeginInvoke,
             // MessageBox bisa muncul di belakang window dan tidak terlihat user.
             this.BeginInvoke(new Action(async () =>
             {
-                MessageBox.Show(
-                    $"Perekaman selesai!\nFile: {capturedPath}\n\nMengunggah ke server...",
-                    "Perekaman Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Reset tombol ke kondisi awal
+                button1.Text = "Start";
+                button1.BackColor = SystemColors.ButtonFace;
+                button1.Enabled = true;
+                buttonStop.Enabled = true;
+
                 await UploadAndTranscribe(capturedPath);
             }));
         }

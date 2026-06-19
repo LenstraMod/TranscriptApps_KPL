@@ -20,9 +20,13 @@ namespace Backend.Services
 
         //fungsi untuk login. Disini validasi dari login yang dilakukan
         public User? Login(string email, string password)
-        { 
+        {
+            // Preconditions
+            Contract.Requires(!string.IsNullOrWhiteSpace(email), "Email tidak boleh kosong");
+            Contract.Requires(!string.IsNullOrWhiteSpace(password), "Password tidak boleh kosong");
+
             //Cari dan validasi data psikolog. Jika ada psikolog maka akan di return
-            var psikolog = _psikologList.FirstOrDefault(p => 
+            var psikolog = _psikologList.FirstOrDefault(p =>
             p.email == email &&
             p.password == password
             );
@@ -39,7 +43,12 @@ namespace Backend.Services
         }
 
         //Fungsi untuk register. Menambahkan user baru(hanya pasien saja) ke dalam list
-        public bool Register(Patient patient) { 
+        public bool Register(Patient patient) {
+            // Preconditions
+            Contract.Requires(patient != null, "Data patient tidak boleh null");
+            Contract.Requires(!string.IsNullOrWhiteSpace(patient!.email), "Email patient tidak boleh kosong");
+            Contract.Requires(!string.IsNullOrWhiteSpace(patient.password), "Password patient tidak boleh kosong");
+
             //Melaukan defense jika email sudah ada maka return false
             bool emailExists =
                 _psikologList.Any(p => p.email == patient.email) ||
@@ -53,6 +62,10 @@ namespace Backend.Services
 
             _patientList.Add(patient);
             _jsonHelper.SaveJson("Patient.json", _patientList);
+
+            // Postcondition: patient benar-benar masuk ke list
+            Contract.Ensures(_patientList.Any(p => p.Id == patient.Id),
+                "Patient baru harus ada di list setelah Register");
 
             return true;
         }

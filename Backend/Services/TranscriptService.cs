@@ -21,18 +21,17 @@ namespace Backend.Services
             _transcripts = _jsonHelper.LoadJson<Transcript>(fileName);
         }
 
-        //Fungsi yg melakukan generate transcrript saat audio sesi selesai. Ini merupakan implementasi automata
+        //Fungsi yg melakukan generate transcript saat audio sesi selesai
         public async Task<Transcript> GenerateTranscript(string scheduleId, byte[] audioBytes)
         {
-            bool exist = _transcripts.Any(t => t.scheduleId == scheduleId);
+            // Preconditions
+            Contract.Requires(!string.IsNullOrWhiteSpace(scheduleId), "ScheduleId tidak boleh kosong");
+            Contract.Requires(audioBytes != null, "Data audio tidak boleh null");
+            Contract.Requires(audioBytes!.Length > 0, "Data audio tidak boleh kosong (0 bytes)");
 
-            //Jika transcript sudah ada, maka kembalikan transcriptnya  
-            if (exist) return _transcripts.First(t => t.scheduleId == scheduleId);
-
-            //Implementasi autoamata
-            bool updated = _scheduleService.ApplyEvent(scheduleId, "SelesaiRekam");
-            if (!updated)
-                throw new InvalidOperationException("Schedule belum di-booking atau sudah selesai, tidak bisa generate transcript");
+            // Hapus transcript lama jika ada — rekaman baru selalu menghasilkan transcript baru
+            var existing = _transcripts.FirstOrDefault(t => t.scheduleId == scheduleId);
+            if (existing != null) _transcripts.Remove(existing);
 
             //Ambil hasil transcript yang ada dari gemini.
             //Fungsi ini async jadi bisa jalan berbarengan dengan fung lainnya
@@ -48,16 +47,24 @@ namespace Backend.Services
                 createdAt = DateTime.Now
             };
 
-            //Transcruot dimasukkan ke dalam List dan simpan ke json
+            //Transcript dimasukkan ke dalam List dan simpan ke json
             _transcripts.Add(transcript);
             _jsonHelper.SaveJson(fileName, _transcripts);
+
+            // Postcondition: transcript harus tersimpan dan bisa ditemukan
+            Contract.Ensures(_transcripts.Any(t => t.scheduleId == scheduleId),
+                "Transcript baru harus ada di list setelah GenerateTranscript");
 
             return transcript;
         }
 
-        //Funsi untuk mengambil transcript sesuai ID dan rolenya
+        //Fungsi untuk mengambil transcript sesuai ID dan rolenya
         public string? GetTranscript(string scheduleId, string role)
         {
+            // Preconditions
+            Contract.Requires(!string.IsNullOrWhiteSpace(scheduleId), "ScheduleId tidak boleh kosong");
+            Contract.Requires(!string.IsNullOrWhiteSpace(role), "Role tidak boleh kosong");
+
             var transcript = _transcripts.FirstOrDefault(t => t.scheduleId == scheduleId);
             if (transcript == null) return null;
             return role == "Psikolog" ? transcript.technicalTranscript : transcript.simplifiedTranscripts;
