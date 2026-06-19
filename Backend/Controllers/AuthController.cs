@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
+    //Controller untuk autentikasi
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -14,6 +15,7 @@ namespace Backend.Controllers
             _authService = authService;
         }
 
+        //Endpoint login
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest req) 
         {
@@ -31,6 +33,7 @@ namespace Backend.Controllers
             });
         }
 
+        //Endpoint Register
         [HttpPost("register")]
         public IActionResult Register([FromBody] Patient patient)
         { 
@@ -42,7 +45,8 @@ namespace Backend.Controllers
         }
     }
 
-    public class LoginRequest
+    //bentuk request untuk login
+    public class LoginRequest 
     {
         public string Email { get; set; }
         public string Password { get; set; }

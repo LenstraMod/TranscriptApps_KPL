@@ -5,8 +5,11 @@ using System.Text.Json;
 
 namespace JsonHelperLibrary
 {
+    //Library untuk menangani response dari gemini API
     public class GeminiResponse
     {
+        //Bentuk Json dari AudioRequest dari gemini API. 
+        //Tipe yang dkirim adalah audio
         public static string BuildAudioRequest(string base64audio, string prompt)
         {
             var requestBody = new
@@ -34,6 +37,7 @@ namespace JsonHelperLibrary
             return JsonSerializer.Serialize(requestBody);
         }
 
+        //Fungsi yang menerima hasil generasi dari gemini API.
         public static string ParseTranscript(string responseJson)
         {
             try

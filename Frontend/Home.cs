@@ -76,6 +76,11 @@ namespace Frontend
                         "",                                // path gambar (tidak ada dari backend)
                         s.ScheduleId                       // ID jadwal — disimpan di card untuk navigasi
                     );
+
+                    // Refresh list otomatis setelah card dihapus atau diedit
+                    card.CardDeleted += (_, __) => _ = LoadSchedulesFromBackend();
+                    card.CardEdited  += (_, __) => _ = LoadSchedulesFromBackend();
+
                     flowLayoutPanel1.Controls.Add(card);
                 }
             }

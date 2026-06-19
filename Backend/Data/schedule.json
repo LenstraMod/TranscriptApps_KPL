@@ -1,26 +1,5 @@
 [
   {
-    "scheduleId": "SCH-001",
-    "psychologist": {
-      "psychologistId": 1,
-      "name": "Dr. Budi Santoso, M.Psi.",
-      "email": "budi.santoso@psikolog.com",
-      "strNumber": "STR-12345-2026",
-      "experience": 8
-    },
-    "session": {
-      "date": "2026-06-25",
-      "day": "Wednesday",
-      "startTime": "09:00",
-      "endTime": "10:00",
-      "method": "online",
-      "meetingLink": "https://meet.google.com/budi-sesi-001",
-      "location": null
-    },
-    "status": "Tersedia",
-    "bookedBy": null
-  },
-  {
     "scheduleId": "SCH-002",
     "psychologist": {
       "psychologistId": 1,
@@ -248,5 +227,26 @@
         }
       ]
     }
+  },
+  {
+    "scheduleId": "SCH-010",
+    "psychologist": {
+      "psychologistId": 1,
+      "name": "Dr. Budi Santoso, M.Psi.",
+      "email": "budi.santoso@psikolog.com",
+      "strNumber": "",
+      "experience": 0
+    },
+    "session": {
+      "date": "2026-06-19",
+      "day": "",
+      "startTime": "12",
+      "endTime": "Tempat input jam selesai",
+      "method": "",
+      "meetingLink": null,
+      "location": null
+    },
+    "status": "Tersedia",
+    "bookedBy": null
   }
 ]

@@ -3,8 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
+    //Implementasi Automata
     public enum ScheduleStatus { Tersedia, Terbooking, Selesai }
 
+    //Models class untuk schedule
     public class Schedule
     {
         [JsonPropertyName("scheduleId")]
@@ -23,12 +25,15 @@ namespace Backend.Models
         [JsonPropertyName("bookedBy")]
         public BookedBy? BookedBy { get; set; }
 
+
+        //Proses table driven untuk mengetahui state yang ada
         private static readonly Dictionary<(ScheduleStatus, string), ScheduleStatus> Transitions = new()
         {
             [(ScheduleStatus.Tersedia, "Booking")] = ScheduleStatus.Terbooking,
             [(ScheduleStatus.Terbooking, "SelesaiRekam")] = ScheduleStatus.Selesai,
         };
 
+        //Fungsi Finite State Machine/Automata yang mengubah state
         public void Apply(string evt)
         {
             if (!Transitions.TryGetValue((Status, evt), out var next))

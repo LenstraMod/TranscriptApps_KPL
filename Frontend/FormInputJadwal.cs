@@ -13,13 +13,27 @@ namespace Frontend
         // Variabel penampung data jadwal yang akan dikembalikan ke Home
         public JadwalModel DataJadwal = new JadwalModel();
 
+        // Jika tidak null, form berjalan dalam mode edit
+        private readonly string? _editScheduleId;
+        private readonly SessionDto? _existingSession;
+
+        // Constructor untuk mode tambah (default)
         public FormInputJadwal()
         {
             InitializeComponent();
-
-            // Daftarkan event handler secara manual (bukan lewat designer)
             btnSave.Click += new System.EventHandler(this.btnSave_Click);
             btnPilihGambar.Click += new System.EventHandler(this.btnPilihGambar_Click);
+        }
+
+        // Constructor untuk mode edit — pre-fill data sesi yang ada
+        public FormInputJadwal(string scheduleId, SessionDto existingSession)
+        {
+            InitializeComponent();
+            btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            btnPilihGambar.Click += new System.EventHandler(this.btnPilihGambar_Click);
+
+            _editScheduleId = scheduleId;
+            _existingSession = existingSession;
         }
 
         private void FormInputJadwal_Load(object sender, EventArgs e)
@@ -34,6 +48,32 @@ namespace Frontend
             {
                 txtNamaPsikolog.Text = SessionManager.UserName;
                 txtNamaPsikolog.ReadOnly = true;
+            }
+
+            // Mode edit: pre-fill data sesi yang sudah ada
+            if (_editScheduleId != null && _existingSession != null)
+            {
+                this.Text = "Edit Jadwal";
+                btnPilihGambar.Visible = false;
+                lblPathGambar.Visible = false;
+
+                if (DateTime.TryParse(_existingSession.Date, out var dt))
+                    dtpTanggal.Value = dt;
+
+                txtHari.Text = _existingSession.Day;
+                txtMulai.Text = _existingSession.StartTime;
+                txtAkhir.Text = _existingSession.EndTime;
+
+                // Pilih item ComboBox yang sesuai dengan metode yang ada
+                for (int i = 0; i < cmbJenisSesi.Items.Count; i++)
+                {
+                    if (string.Equals(cmbJenisSesi.Items[i]?.ToString(),
+                            _existingSession.Method, StringComparison.OrdinalIgnoreCase))
+                    {
+                        cmbJenisSesi.SelectedIndex = i;
+                        break;
+                    }
+                }
             }
         }
 
@@ -70,53 +110,75 @@ namespace Frontend
             if (cmbJenisSesi.SelectedItem != null)
                 DataJadwal.JenisSesi = cmbJenisSesi.SelectedItem.ToString() ?? "";
 
-            // Bangun objek Schedule sesuai format yang diharapkan backend
-            var schedulePayload = new
-            {
-                scheduleId = "",      // backend akan generate ID ini secara otomatis
-                psychologist = new
-                {
-                    psychologistId = SessionManager.UserId,
-                    name = SessionManager.UserName,
-                    email = SessionManager.UserEmail,
-                    strNumber = "",   // tidak tersedia dari session, backend tidak validasi
-                    experience = 0
-                },
-                session = new
-                {
-                    date = DataJadwal.TanggalSesi,
-                    day = DataJadwal.HariSesi,
-                    startTime = DataJadwal.JamMulai,
-                    endTime = DataJadwal.JamAkhir,
-                    method = DataJadwal.JenisSesi,
-                    meetingLink = (string?)null,
-                    location = (string?)null
-                },
-                status = "Tersedia",  // jadwal baru selalu mulai dengan status Tersedia
-                bookedBy = (object?)null
-            };
-
-            string json = JsonSerializer.Serialize(schedulePayload);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
             try
             {
-                // POST jadwal baru ke backend — backend menyimpannya ke data/schedule.json
-                HttpResponseMessage response = await ApiClient.Http.PostAsync(
-                    $"{ApiClient.BaseUrl}/api/schedule/add", content);
+                HttpResponseMessage response;
+
+                if (_editScheduleId != null)
+                {
+                    // Mode edit: kirim hanya data sesi via PUT
+                    var sessionPayload = new
+                    {
+                        date = DataJadwal.TanggalSesi,
+                        day = DataJadwal.HariSesi,
+                        startTime = DataJadwal.JamMulai,
+                        endTime = DataJadwal.JamAkhir,
+                        method = DataJadwal.JenisSesi,
+                        meetingLink = (string?)null,
+                        location = (string?)null
+                    };
+
+                    string json = JsonSerializer.Serialize(sessionPayload);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    response = await ApiClient.Http.PutAsync(
+                        $"{ApiClient.BaseUrl}/api/schedule/{_editScheduleId}", content);
+                }
+                else
+                {
+                    // Mode tambah: kirim seluruh objek jadwal via POST
+                    var schedulePayload = new
+                    {
+                        scheduleId = "",      // backend akan generate ID ini secara otomatis
+                        psychologist = new
+                        {
+                            psychologistId = SessionManager.UserId,
+                            name = SessionManager.UserName,
+                            email = SessionManager.UserEmail,
+                            strNumber = "",   // tidak tersedia dari session, backend tidak validasi
+                            experience = 0
+                        },
+                        session = new
+                        {
+                            date = DataJadwal.TanggalSesi,
+                            day = DataJadwal.HariSesi,
+                            startTime = DataJadwal.JamMulai,
+                            endTime = DataJadwal.JamAkhir,
+                            method = DataJadwal.JenisSesi,
+                            meetingLink = (string?)null,
+                            location = (string?)null
+                        },
+                        status = "Tersedia",
+                        bookedBy = (object?)null
+                    };
+
+                    string json = JsonSerializer.Serialize(schedulePayload);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    response = await ApiClient.Http.PostAsync(
+                        $"{ApiClient.BaseUrl}/api/schedule/add", content);
+                }
 
                 if (response.IsSuccessStatusCode)
                 {
-                    MessageBox.Show("Jadwal berhasil ditambahkan!", "Sukses",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string msg = _editScheduleId != null
+                        ? "Jadwal berhasil diupdate!"
+                        : "Jadwal berhasil ditambahkan!";
+                    MessageBox.Show(msg, "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    // Tutup form dan sinyal ke Home bahwa penyimpanan berhasil
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
                 else
                 {
-                    // Tampilkan pesan error dari server
                     string err = await response.Content.ReadAsStringAsync();
                     MessageBox.Show("Gagal menyimpan jadwal:\n" + err, "Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);

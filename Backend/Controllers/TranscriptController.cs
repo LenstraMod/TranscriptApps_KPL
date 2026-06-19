@@ -13,6 +13,7 @@ namespace Backend.Controllers
             _service = service;
         }
 
+        //Merupakan endpoint untuk melakuan generate
         [HttpPost("generate")]
         public async Task<IActionResult> Generate([FromForm] TranscriptReq req)
         {
@@ -29,6 +30,7 @@ namespace Backend.Controllers
 
             try
             {
+                //Mengirim hasil audio ke gemini
                 var transcript = await _service.GenerateTranscript(req.scheduleId, audioBytes);
 
                 return Ok(new
@@ -41,7 +43,7 @@ namespace Backend.Controllers
             catch (InvalidOperationException ex)
             {
                 // Terjadi saat jadwal belum Terbooking atau sudah Selesai
-                // Kembalikan 400 dengan pesan yang bisa dibaca frontend, bukan 500 kosong
+                // Kembalikan 400 dengan pesan yang bisa dibaca frontend
                 return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
@@ -52,7 +54,6 @@ namespace Backend.Controllers
         }
 
         // Bug fix: nama parameter route {scheduleId} harus sama dengan nama parameter method
-        // Sebelumnya: route pakai {appointmentId} tapi parameter pakai scheduleIds — tidak terikat
         [HttpGet("{scheduleId}")]
         public IActionResult GetTranscript(string scheduleId, [FromQuery] string role)
         {
@@ -66,10 +67,11 @@ namespace Backend.Controllers
             return Ok(new {
                 scheduleId = scheduleId,
                 role = role,
-                transcript = transcript   // teks transcript langsung (string), bukan objek
+                transcript = transcript   
             });
         }
 
+        //Ambil semua transcript yang ada
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -79,6 +81,8 @@ namespace Backend.Controllers
 
     }
 
+
+    //class untuk request transcript
     public class TranscriptReq 
     { 
         public string scheduleId{ get; set; }

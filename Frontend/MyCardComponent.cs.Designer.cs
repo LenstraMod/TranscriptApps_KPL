@@ -30,7 +30,10 @@
         {
             panel1 = new Panel();
             panel2 = new Panel();
+            tableLayoutButtons = new TableLayoutPanel();
             Details = new Button();
+            btnEdit = new Button();
+            btnDelete = new Button();
             label6 = new Label();
             label5 = new Label();
             label4 = new Label();
@@ -40,11 +43,12 @@
             pictureBox1 = new PictureBox();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
+            tableLayoutButtons.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
-            // 
+            //
             // panel1
-            // 
+            //
             panel1.BackColor = SystemColors.ActiveBorder;
             panel1.Controls.Add(panel2);
             panel1.Controls.Add(pictureBox1);
@@ -52,11 +56,11 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(766, 186);
             panel1.TabIndex = 1;
-            // 
+            //
             // panel2
-            // 
+            //
             panel2.BackColor = Color.FromArgb(0, 192, 192);
-            panel2.Controls.Add(Details);
+            panel2.Controls.Add(tableLayoutButtons);
             panel2.Controls.Add(label6);
             panel2.Controls.Add(label5);
             panel2.Controls.Add(label4);
@@ -69,17 +73,50 @@
             panel2.Padding = new Padding(10);
             panel2.Size = new Size(580, 186);
             panel2.TabIndex = 2;
-            // 
+            //
+            // tableLayoutButtons
+            //
+            tableLayoutButtons.ColumnCount = 3;
+            tableLayoutButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
+            tableLayoutButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33F));
+            tableLayoutButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34F));
+            tableLayoutButtons.Controls.Add(Details, 0, 0);
+            tableLayoutButtons.Controls.Add(btnEdit, 1, 0);
+            tableLayoutButtons.Controls.Add(btnDelete, 2, 0);
+            tableLayoutButtons.Dock = DockStyle.Bottom;
+            tableLayoutButtons.Location = new Point(10, 133);
+            tableLayoutButtons.Name = "tableLayoutButtons";
+            tableLayoutButtons.RowCount = 1;
+            tableLayoutButtons.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutButtons.Size = new Size(560, 43);
+            tableLayoutButtons.TabIndex = 2;
+            //
             // Details
-            // 
-            Details.Dock = DockStyle.Bottom;
-            Details.Location = new Point(10, 133);
+            //
+            Details.Dock = DockStyle.Fill;
             Details.Name = "Details";
-            Details.Size = new Size(560, 43);
-            Details.TabIndex = 2;
+            Details.TabIndex = 0;
             Details.Text = "Details";
             Details.UseVisualStyleBackColor = true;
             Details.Click += this.Details_Click;
+            //
+            // btnEdit
+            //
+            btnEdit.Dock = DockStyle.Fill;
+            btnEdit.Name = "btnEdit";
+            btnEdit.TabIndex = 1;
+            btnEdit.Text = "Edit";
+            btnEdit.UseVisualStyleBackColor = true;
+            btnEdit.Click += this.btnEdit_Click;
+            //
+            // btnDelete
+            //
+            btnDelete.Dock = DockStyle.Fill;
+            btnDelete.Name = "btnDelete";
+            btnDelete.TabIndex = 2;
+            btnDelete.Text = "Hapus";
+            btnDelete.UseVisualStyleBackColor = true;
+            btnDelete.Click += this.btnDelete_Click;
             // 
             // label6
             // 
@@ -153,6 +190,7 @@
             Controls.Add(panel1);
             Name = "UserControl1";
             Size = new Size(776, 198);
+            tableLayoutButtons.ResumeLayout(false);
             panel1.ResumeLayout(false);
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
@@ -164,7 +202,10 @@
 
         private Panel panel1;
         private Panel panel2;
+        private TableLayoutPanel tableLayoutButtons;
         private Button Details;
+        private Button btnEdit;
+        private Button btnDelete;
         private Label label6;
         private Label label5;
         private Label label4;

@@ -14,6 +14,8 @@ namespace JsonHelperLibrary
             _dataFolder = config;
         }
 
+        //Implementasi Generics
+
         public List<T> LoadJson<T>(string filename) {
             string path = Path.Combine(_dataFolder, filename);
 

@@ -3,6 +3,7 @@ using JsonHelperLibrary;
 
 namespace Backend.Services
 {
+    //Service yang menangani sesi jadwal
     public class ScheduleService
     {
         private readonly JsonHelper _jsonHelper;
@@ -14,13 +15,16 @@ namespace Backend.Services
             _scheduleList = _jsonHelper.LoadJson<Schedule>("schedule.json");
         }
 
+        //Mengambil semua list jadwal
         public List<Schedule> GetAll() => _scheduleList;
 
+        //Mengambil semua jadwal yang available
         public List<Schedule> GetAvailable()
         {
             return _scheduleList.Where(s => s.Status == ScheduleStatus.Tersedia).ToList();
         }
 
+        
         public List<Schedule> GetByPsikolog(int psikologId)
         {
             return _scheduleList.Where(s => s.Psychologist.PsychologistId == psikologId).ToList();
@@ -44,8 +48,7 @@ namespace Backend.Services
             return true;
         }
 
-        // dulu: UpdateStatus(scheduleId, newStatus) -- newStatus = status tujuan langsung
-        // sekarang: evt = nama event, divalidasi lewat Schedule.Apply()
+        //evt = nama event, divalidasi lewat Schedule.Apply()
         public bool ApplyEvent(string scheduleId, string evt)
         {
             var schedule = _scheduleList.FirstOrDefault(s => s.ScheduleId == scheduleId);
@@ -62,6 +65,16 @@ namespace Backend.Services
         {
             newSchedule.ScheduleId = GenerateNextId();
             _scheduleList.Add(newSchedule);
+            SaveData();
+            return true;
+        }
+
+        public bool EditSchedule(string scheduleId, SessionInfo updatedSession)
+        {
+            var schedule = _scheduleList.FirstOrDefault(s => s.ScheduleId == scheduleId);
+            if (schedule == null || schedule.Status != ScheduleStatus.Tersedia) return false;
+
+            schedule.Session = updatedSession;
             SaveData();
             return true;
         }

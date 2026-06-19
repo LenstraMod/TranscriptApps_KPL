@@ -68,6 +68,14 @@ namespace Backend.Controllers
             return Ok(new { message = "Status berhasil diupdate" });
         }
 
+        [HttpPut("{id}")]
+        public IActionResult EditSchedule(string id, [FromBody] SessionInfo session)
+        {
+            bool success = _scheduleService.EditSchedule(id, session);
+            if (!success) return BadRequest(new { message = "Jadwal tidak ditemukan atau sudah terbooking" });
+            return Ok(new { message = "Jadwal berhasil diupdate" });
+        }
+
         [HttpDelete("{id}")]
         public IActionResult DeleteSchedule(string id)
         {
