@@ -21,40 +21,72 @@ namespace Backend.Services
             _transcripts = _jsonHelper.LoadJson<Transcript>(fileName);
         }
 
-        //Fungsi yg melakukan generate transcript saat audio sesi selesai
+        //fungsi yg melakukan generate transcript saat audio sesi selesai
         public async Task<Transcript> GenerateTranscript(string scheduleId, byte[] audioBytes)
         {
-            // Preconditions
-            Contract.Requires(!string.IsNullOrWhiteSpace(scheduleId), "ScheduleId tidak boleh kosong");
-            Contract.Requires(audioBytes != null, "Data audio tidak boleh null");
-            Contract.Requires(audioBytes!.Length > 0, "Data audio tidak boleh kosong (0 bytes)");
+            bool exist = _transcripts.Any(t => t.scheduleId == scheduleId);
+            if (exist) return _transcripts.First(t => t.scheduleId == scheduleId);
 
-            // Hapus transcript lama jika ada — rekaman baru selalu menghasilkan transcript baru
-            var existing = _transcripts.FirstOrDefault(t => t.scheduleId == scheduleId);
-            if (existing != null) _transcripts.Remove(existing);
+            bool updated = _scheduleService.ApplyEvent(scheduleId, "SelesaiRekam");
+            if (!updated)
+                throw new InvalidOperationException("Schedule belum di-booking atau sudah selesai, tidak bisa generate transcript");
 
-            //Ambil hasil transcript yang ada dari gemini.
-            //Fungsi ini async jadi bisa jalan berbarengan dengan fung lainnya
-            var (technical, simplified) = await _geminiService.TranscribedAudio(audioBytes);
-
-            //Masukkan hasil gemini transcript ke dalam objek
+            //buat record transcript dulu dengan status awal, lalu jalankan event "MulaiProses"
             var transcript = new Transcript
             {
                 id = GetNextId(),
                 scheduleId = scheduleId,
-                technicalTranscript = technical,
-                simplifiedTranscripts = simplified,
                 createdAt = DateTime.Now
             };
 
-            //Transcript dimasukkan ke dalam List dan simpan ke json
+            transcript.Apply("MulaiProses"); // BelumDiproses -> SedangDiproses
+
             _transcripts.Add(transcript);
             _jsonHelper.SaveJson(fileName, _transcripts);
 
-            // Postcondition: transcript harus tersimpan dan bisa ditemukan
-            Contract.Ensures(_transcripts.Any(t => t.scheduleId == scheduleId),
-                "Transcript baru harus ada di list setelah GenerateTranscript");
+            try
+            {
+                var (technical, simplified) = await _geminiService.TranscribedAudio(audioBytes);
 
+                transcript.technicalTranscript = technical;
+                transcript.simplifiedTranscripts = simplified;
+                transcript.Apply("GeminiSukses"); // SedangDiproses -> Selesai
+            }
+            catch (Exception)
+            {
+                transcript.Apply("GeminiGagal"); // SedangDiproses -> Gagal
+                _jsonHelper.SaveJson(fileName, _transcripts);
+                throw; // tetap lempar error supaya controller bisa kasih response gagal
+            }
+
+            _jsonHelper.SaveJson(fileName, _transcripts);
+            return transcript;
+        }
+
+        // Dipanggil kalau status transcript "Gagal" dan ingin diproses ulang
+        public async Task<Transcript> RetryTranscript(string scheduleId, byte[] audioBytes)
+        {
+            var transcript = _transcripts.FirstOrDefault(t => t.scheduleId == scheduleId);
+            if (transcript == null)
+                throw new InvalidOperationException("Transcript tidak ditemukan");
+
+            transcript.Apply("Retry"); // Gagal -> SedangDiproses
+
+            try
+            {
+                var (technical, simplified) = await _geminiService.TranscribedAudio(audioBytes);
+                transcript.technicalTranscript = technical;
+                transcript.simplifiedTranscripts = simplified;
+                transcript.Apply("GeminiSukses");
+            }
+            catch (Exception)
+            {
+                transcript.Apply("GeminiGagal");
+                _jsonHelper.SaveJson(fileName, _transcripts);
+                throw;
+            }
+
+            _jsonHelper.SaveJson(fileName, _transcripts);
             return transcript;
         }
 
